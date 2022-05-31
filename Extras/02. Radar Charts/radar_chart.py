@@ -74,11 +74,11 @@ suz_goals = ufio.convert_to_per_90(suz_goals, min_1)
 ## labels, and ranges
 labels = ['Non-Penalty Goals', 'Shots', 'Shooting %', 'Passing %', 'Assists', 'Key Passes',
               'Through Balls', 'Successful Dribbles', 'Goal Conversion %']
-    
+
 ranges = [(0.5, 1.03), (0.5, 5.5), (10, 55), (1, 85), (0.1, 0.7), (0.5, 3), 
                 (0.5, 6), (0.7, 10), (20, 70)]
         ## note for different stats you have to chage the range values
-   
+
 ## stats 
 leo_stats = [leo_goals, leo_shots, leo_shot_per, leo_pass_per, leo_assist, leo_key_pass,
              leo_through_ball, leo_dribble, leo_gcr]

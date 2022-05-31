@@ -28,9 +28,7 @@ def get_competitions():
     comp_df -- dataframe for competition data.
     '''
     comp_data = json.load(open('../Statsbomb/data/competitions.json'))
-    comp_df = pd.DataFrame(comp_data)
-    
-    return comp_df
+    return pd.DataFrame(comp_data)
 
 def flatten_json(sub_str):
     '''
@@ -52,10 +50,8 @@ def flatten_json(sub_str):
             for a in x:
                 flatten(x[a], name + a + '_')
         elif type(x) is list:
-            i = 0
-            for a in x:
+            for i, a in enumerate(x):
                 flatten(a, name + str(i) + '_')
-                i += 1
         else:
             out[name[:-1]] = x
 
@@ -154,20 +150,20 @@ def get_req_matches(comp_id, season_list, team_1, team_2):
     '''
     match_dict = {}
     match_ids = {}
-    
+
     for season_id in season_list:
         match_info = get_matches(comp_id, season_id)
         match_dict[season_id] = match_info
-        
+
         if season_id == 41:
             home_team = team_2
             away_team = team_1
         else:
             home_team = team_1
             away_team = team_2
-        
+
         match_ids[season_id] = getting_match_id(match_info, home_team, away_team)
-    
+
     return match_ids
 
 def make_event_df(match_id):
@@ -181,15 +177,12 @@ def make_event_df(match_id):
     event_df -- dataframe object, the event dataframe for the particular match.
     '''
     ## setting path for the required file
-    path = '../Statsbomb/data/events/{}.json'.format(match_id)
-    
+    path = f'../Statsbomb/data/events/{match_id}.json'
+
     ## reading in the json file
     event_json = json.load(open(path, encoding='utf-8'))[2:]
-    
-    ## normalize the json data
-    df = json_normalize(event_json, sep='_')
-    
-    return df
+
+    return json_normalize(event_json, sep='_')
 
 
 def get_required_events(player_list, match_id):
@@ -204,10 +197,8 @@ def get_required_events(player_list, match_id):
     required_df -- dataframe object.
     '''
     df = make_event_df(match_id)
-    
-    required_df = df.loc[df['player_name'].isin(player_list)]
-    
-    return required_df
+
+    return df.loc[df['player_name'].isin(player_list)]
 
 def make_lists(x_scale, y_scale):
     '''
@@ -270,16 +261,16 @@ def non_neg_matrix_factorization(player):
     '''
     model_dict = {}
 
+    comps = 30
+
     for key, value in player.items():
         player = [np.matrix.flatten(value)]
-    
-        comps = 30
-    
+
         model = NMF(n_components=comps, init='random', random_state=0)
-    
+
         model.fit(player)
-        
+
         model_dict[key] = model
-    
+
     return model_dict
       

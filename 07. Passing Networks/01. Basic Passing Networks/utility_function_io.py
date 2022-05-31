@@ -25,9 +25,7 @@ def get_competitions():
     comp_df -- dataframe for competition data.
     '''
     comp_data = json.load(open('../Statsbomb/data/competitions.json'))
-    comp_df = pd.DataFrame(comp_data)
-    
-    return comp_df
+    return pd.DataFrame(comp_data)
 
 def flatten_json(sub_str):
     '''
@@ -49,10 +47,8 @@ def flatten_json(sub_str):
             for a in x:
                 flatten(x[a], name + a + '_')
         elif type(x) is list:
-            i = 0
-            for a in x:
+            for i, a in enumerate(x):
                 flatten(a, name + str(i) + '_')
-                i += 1
         else:
             out[name[:-1]] = x
 
@@ -74,17 +70,14 @@ def get_matches(comp_id, season_id):
     '''
     ## setting path to the file
     path = '../Statsbomb/data/matches/{0}/{1}.json'.format(comp_id, season_id)
-    
+
     ## loading up the data from json file
     match_data = json.load(open(path))
-    
+
     ## flattening the json file
     match_flatten = [flatten_json(x) for x in match_data]
-    
-    ## creating a dataframe
-    match_df = pd.DataFrame(match_flatten)
-    
-    return match_df
+
+    return pd.DataFrame(match_flatten)
 
 def renaming_columns(match_df_cols):
     '''
@@ -154,14 +147,14 @@ def make_event_df(match_id):
     lineups -- lineups for the match.
     '''
     ## setting path for the required file
-    path = '../Statsbomb/data/events/{}.json'.format(match_id)
-    
+    path = f'../Statsbomb/data/events/{match_id}.json'
+
     ## reading in the json file
     event_json = json.load(open(path, encoding='utf-8'))
-    
+
     ## lineups for the game
-    lineups = event_json[0:2]
-    
+    lineups = event_json[:2]
+
     return event_json[4:], lineups
 
 def get_straters(lineup):
@@ -174,10 +167,13 @@ def get_straters(lineup):
     Returns:
     players -- dict, containing player id as key and name, jersey number as its value(nested dict)        
     '''
-    players = {p['player']['id']: {'name': p['player']['name'],
-                                  'jersey': p['jersey_number']} for p in lineup['tactics']['lineup']}
-    
-    return players
+    return {
+        p['player']['id']: {
+            'name': p['player']['name'],
+            'jersey': p['jersey_number'],
+        }
+        for p in lineup['tactics']['lineup']
+    }
     
 def passing_matrix(pass_data):
     '''
@@ -192,22 +188,22 @@ def passing_matrix(pass_data):
     '''
     ## initialize a pass matrix as an empty dictionary
     pass_matrix = {}
-    
+
     for pdata in pass_data:
         if 'outcome' not in pdata['pass'].keys():
             passer_id = pdata['player']['id']
             recipient_id = pdata['pass']['recipient']['id']
-            
+
             a, b = sorted([passer_id, recipient_id])
-            
-            if pass_matrix.get(a) == None:
+
+            if pass_matrix.get(a) is None:
                 pass_matrix[a] = {}
-            
-            if pass_matrix[a].get(b) == None:
+
+            if pass_matrix[a].get(b) is None:
                 pass_matrix[a][b] = 0
-            
+
             pass_matrix[a][b] += 1
-    
+
     return pass_matrix
 
 
@@ -224,22 +220,23 @@ def get_avg_player_pos(event, players):
     '''
     ## initializing a position matrix as empty dictionary
     position_matrix = {}
-    
+
     for e in event:
         if e.get('player') != None:
             player_id = e['player']['id']
-            
-            if position_matrix.get(player_id) == None:
+
+            if position_matrix.get(player_id) is None:
                 position_matrix[player_id] = {'x': [], 'y': []}
-            
+
             if e.get('location') != None:
                 position_matrix[player_id]['x'].append(e['location'][0])
                 position_matrix[player_id]['y'].append(80 - e['location'][1])
-    
-    avg_position = {k: [np.mean(v['x']), np.mean(v['y'])] 
-                                    for k, v in position_matrix.items() if k in players.keys()}
-    
-    return avg_position
+
+    return {
+        k: [np.mean(v['x']), np.mean(v['y'])]
+        for k, v in position_matrix.items()
+        if k in players.keys()
+    }
 
 def vol_passes_exchanged(pass_matrix, players, avg_position):
     '''
@@ -256,15 +253,15 @@ def vol_passes_exchanged(pass_matrix, players, avg_position):
     '''
     lines = []
     weights = []
-    
+
     for k, v in pass_matrix.items():
         if players.get(k) != None:
             origin = avg_position[k]
-            
+
             for k_, v_ in pass_matrix[k].items():
                 if players.get(k_) != None:
                     dest = avg_position[k_]
                     lines.append([*origin, *dest])
                     weights.append(v_)
-    
+
     return lines, weights

@@ -43,31 +43,31 @@ def cal_velocity(df, max_speed=12, window=7):
     '''
     remove_velocity(df)
     ## removing velocity columns if present
-    
+
     ## getting the player ids
     player_ids = np.unique([cols[:-2] for cols in df.columns if cols.split('_')[0] in ['Home', 'Away']])
-        
+
     ## computing the difference in time for each frame
     dt = df['Time [s]'].diff()
-    
+
     for player in player_ids:
         ## calculating velocities
-        vx = df[player + '_X'].diff() / dt
-        vy = df[player + '_Y'].diff() / dt
-        
+        vx = df[f'{player}_X'].diff() / dt
+        vy = df[f'{player}_Y'].diff() / dt
+
         ## removing outliers
         raw_speed = np.sqrt(vx**2 + vy**2)
         vx[raw_speed > max_speed] = np.nan
         vy[raw_speed > max_speed] = np.nan
-        
+
         ## smooting the values
         ma_window = np.ones(window) / window
         vx = np.convolve(vx, v=ma_window, mode='same')
         vy = np.convolve(vy, v=ma_window, mode='same')
-        
-        df[player + '_vx'] = vx
-        df[player + '_vy'] = vy
-        df[player + '_speed'] = np.sqrt(vx**2 + vy**2)
-    
+
+        df[f'{player}_vx'] = vx
+        df[f'{player}_vy'] = vy
+        df[f'{player}_speed'] = np.sqrt(vx**2 + vy**2)
+
     return df
     

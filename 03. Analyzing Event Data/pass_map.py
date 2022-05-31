@@ -16,6 +16,7 @@ Modules Used(4):
 3. pandas -- module to work with dataframes.
 4. FCPython -- module to create football pitch map
 """
+
 import matplotlib.pyplot as plt
 import json
 from pandas.io.json import json_normalize
@@ -38,10 +39,13 @@ player_name = 'Xavier Hernández Creus'
 
 ## this is the name of our event data file for
 ## our required El Clasico
-file_name = str(match_id) + '.json'
+file_name = f'{match_id}.json'
 
 ## loading the required event data file
-my_data = json.load(open('../Statsbomb/data/events/' + file_name, 'r', encoding='utf-8'))
+my_data = json.load(
+    open(f'../Statsbomb/data/events/{file_name}', 'r', encoding='utf-8')
+)
+
 
 ## get the nested structure into a dataframe 
 ## store the dataframe in a dictionary with the match id as key
@@ -73,15 +77,15 @@ pass_comp, pass_no = 0, 0
 
 ## iterating through the pass dataframe
 for row_num, passed in pass_df.iterrows():   
-    
+
     if passed['player_name'] == player_name:
         ## for away side
         x_loc = passed['location'][0]
         y_loc = passed['location'][1]
-        
+
         pass_id = passed['id']
         summed_result = sum(breceipt_df.iloc[:, 14].apply(lambda x: pass_id in x))
-        
+
         if summed_result > 0:
             ## if pass made was successful
             color = 'blue'
@@ -92,21 +96,21 @@ for row_num, passed in pass_df.iterrows():
             color = 'red'
             label = 'Unsuccessful'
             pass_no += 1
-        
+
         ## plotting circle at the player's position
         shot_circle = plt.Circle((pitch_length_X - x_loc, y_loc), radius=2, color=color, label=label)
         shot_circle.set_alpha(alpha=0.2)
         ax.add_patch(shot_circle)
-        
+
         ## parameters for making the arrow
         pass_x = 120 - passed['pass_end_location'][0]
         pass_y = passed['pass_end_location'][1] 
         dx = ((pitch_length_X - x_loc) - pass_x)
         dy = y_loc - pass_y
-        
+
         ## making an arrow to display the pass
         pass_arrow = plt.Arrow(pitch_length_X - x_loc, y_loc, -dx, -dy, width=1, color=color)
-        
+
         ## adding arrow to the plot
         ax.add_patch(pass_arrow)
 
@@ -115,8 +119,8 @@ pass_acc = (pass_comp / (pass_comp + pass_no)) * 100
 pass_acc = str(round(pass_acc, 2))
 
 ## adding text to the plot
-plt.text(20, 85, '{} pass map vs Real Madrid'.format(player_name), fontsize=15)
-plt.text(20, 82, 'Pass Accuracy: {}'.format(pass_acc), fontsize=15)
+plt.text(20, 85, f'{player_name} pass map vs Real Madrid', fontsize=15)
+plt.text(20, 82, f'Pass Accuracy: {pass_acc}', fontsize=15)
 
 ## handling labels
 handles, labels = plt.gca().get_legend_handles_labels()
@@ -125,7 +129,7 @@ plt.legend(by_label.values(), by_label.keys(), loc='best', bbox_to_anchor=(0.9, 
 
 ## editing the figure size and saving it
 fig.set_size_inches(12, 8)
-fig.savefig('{} pass map.jpg'.format(player_name), dpi=200)
+fig.savefig(f'{player_name} pass map.jpg', dpi=200)
 
 ## showing the plot
 plt.show()

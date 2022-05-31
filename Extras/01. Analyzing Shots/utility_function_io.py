@@ -26,9 +26,7 @@ def get_competitions():
     comp_df -- dataframe for competition data.
     '''
     comp_data = json.load(open('../Statsbomb/data/competitions.json'))
-    comp_df = pd.DataFrame(comp_data)
-    
-    return comp_df
+    return pd.DataFrame(comp_data)
 
 def flatten_json(sub_str):
     '''
@@ -50,10 +48,8 @@ def flatten_json(sub_str):
             for a in x:
                 flatten(x[a], name + a + '_')
         elif type(x) is list:
-            i = 0
-            for a in x:
+            for i, a in enumerate(x):
                 flatten(a, name + str(i) + '_')
-                i += 1
         else:
             out[name[:-1]] = x
 
@@ -75,17 +71,14 @@ def get_matches(comp_id, season_id):
     '''
     ## setting path to the file
     path = '../Statsbomb/data/matches/{0}/{1}.json'.format(comp_id, season_id)
-    
+
     ## loading up the data from json file
     match_data = json.load(open(path))
-    
+
     ## flattening the json file
     match_flatten = [flatten_json(x) for x in match_data]
-    
-    ## creating a dataframe
-    match_df = pd.DataFrame(match_flatten)
-    
-    return match_df
+
+    return pd.DataFrame(match_flatten)
 
 def renaming_columns(match_df_cols):
     '''
@@ -154,15 +147,12 @@ def make_event_df(match_id):
     event_df -- dataframe object, the event dataframe for the particular match.
     '''
     ## setting path for the required file
-    path = '../Statsbomb/data/events/{}.json'.format(match_id)
-    
+    path = f'../Statsbomb/data/events/{match_id}.json'
+
     ## reading in the json file
     event_json = json.load(open(path, encoding='utf-8'))    
 
-    ## normalize the json data
-    df = json_normalize(event_json, sep='_')
-    
-    return df
+    return json_normalize(event_json, sep='_')
 
 def convert_to_datetime(df):
     '''
@@ -193,12 +183,10 @@ def get_selected_match(match_df, start_date, end_date):
     ## start date
     start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
     end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")    
-    
+
     mask = (match_df['match_date'] > start_date) & (match_df['match_date'] <= end_date)
-    
-    required_df = match_df.loc[mask].copy()
-    
-    return required_df
+
+    return match_df.loc[mask].copy()
 
 def get_selected_events(scoring_df_ids):
     '''

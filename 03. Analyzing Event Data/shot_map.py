@@ -21,6 +21,7 @@ Modules Used(5):
 4. pandas -- module to work with dataframes.
 5. FCPython -- module to create football pitch map
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 import json
@@ -43,10 +44,10 @@ away_team = 'Barcelona'
 
 ## this is the name of our event data file for
 ## our required El Clasico
-file_name = str(match_id) + '.json'
+file_name = f'{match_id}.json'
 
 ## loading the required event data file
-with open('../Statsbomb/data/events/' + file_name) as event_data:
+with open(f'../Statsbomb/data/events/{file_name}') as event_data:
     clasico_data = json.load(event_data)    
 
 ## get the nested structure into a dataframe 
@@ -71,38 +72,36 @@ shots_df.dropna(inplace=True, axis=1)
 for row_num, shot in shots_df.iterrows():
     x_loc = shot['location'][0]     ## shot location x-axis
     y_loc = shot['location'][1]     ## shot location y-axis
-    
+
     goal = shot['shot_outcome_name'] == 'Goal'
     team_name = shot['team_name']
-    
+
     ## assigning the circleSize as per xG value
     circleSize = np.sqrt(shot['shot_statsbomb_xg']*5)
-    
+
     if team_name == home_team:
+        shot_circle = plt.Circle((x_loc, pitch_width_Y - y_loc), circleSize, color='red')
         if goal:
-            shot_circle = plt.Circle((x_loc, pitch_width_Y - y_loc), circleSize, color='red')
             player_name = ' '.join(shot['player_name'].split(' ')[:2])
             plt.text(x_loc + 2, pitch_width_Y - y_loc, player_name)
         else:
-            shot_circle = plt.Circle((x_loc, pitch_width_Y - y_loc), circleSize, color='red')
             shot_circle.set_alpha(alpha=0.2)
-            
+
     elif team_name == away_team:
+        shot_circle = plt.Circle((pitch_length_X - x_loc, y_loc), circleSize, color='blue')
         if goal:
-            shot_circle = plt.Circle((pitch_length_X - x_loc, y_loc), circleSize, color='blue')
             player_name = ' '.join(shot['player_name'].split(' ')[:2])
             if player_name == 'Lionel AndrÃ©s':
                 player_name = 'Messi'
             plt.text(pitch_length_X - x_loc + 2, y_loc - 1, player_name)
         else:
-            shot_circle = plt.Circle((pitch_length_X - x_loc, y_loc), circleSize, color='blue')
             shot_circle.set_alpha(alpha=0.2)
-    
+
     ax.add_patch(shot_circle)
 
-plt.text(5,75,away_team + ' shots') 
-plt.text(80,75,home_team + ' shots') 
-     
+plt.text(5, 75, f'{away_team} shots')
+plt.text(80, 75, f'{home_team} shots') 
+
 fig.set_size_inches(10, 7)
 fig.savefig('shots_pitch_map.jpg', dpi=100)
 plt.show()

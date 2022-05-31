@@ -80,35 +80,35 @@ def plot_shots(shots_df, ax):
             ## green color
             color = 'g'
             marker = '*'
-        
+
         elif shot_outcome == 'Post':
             ## blue color
             color = 'b'
             marker = '2'
-        
+
         elif shot_outcome == 'Off T':
             ## magenta color
             color = 'm'
             marker = 'D'
-        
+
         elif shot_outcome == 'Saved':
             ## red color
             color = 'r'
             marker = 'X'
-        
+
         elif shot_outcome == 'Saved to Post':
             ## red color
             color = 'r'
             marker = 'x'
-        
+
         elif shot_outcome == 'Saved Off Target':
             ## red color
             color = 'r'
             marker = '+'
-        
+
         ax.plot(shot_location[1], shot_location[2], color=color, label=shot_outcome, marker=marker,
                 markersize=12)
-        
+
     handles, labels = plt.gca().get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     plt.legend(by_label.values(), by_label.keys(), loc='upper right', fontsize=20)

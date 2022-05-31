@@ -55,7 +55,7 @@ fig, ax = ufv.shot_map(df=shot_away, fig=fig, ax=ax)
 ## adding text to the plot and saving it
 ax.text(-30, 39, 'Home Shots(Right) vs Away Shots(Left)', fontsize=15)
 fig.savefig('shot_map.jpg')
-    
+
 ## plotting the events which led to first goal for home team
 ## creating our football pitch
 fig, ax = ufv.plot_pitch()      

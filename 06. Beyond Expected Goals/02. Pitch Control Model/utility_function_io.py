@@ -28,9 +28,7 @@ def read_event_data(data_dir, game_id):
     the event data
     '''
     file_loc = '/Sample_Game_{0}/Sample_Game_{0}_RawEventsData.csv'.format(game_id)
-    event_data = pd.read_csv(data_dir + file_loc)       ## reading the data
-    
-    return event_data
+    return pd.read_csv(data_dir + file_loc)
 
 def convert_values(df):
     '''
@@ -48,15 +46,15 @@ def convert_values(df):
     '''
     ## our field dimensions
     field_dims = (105, 68)
-    
+
     ## making list for Start and End positions for both X and Y
     x_cols = [col for col in df.columns if col[-1] == 'X']
     y_cols = [col for col in df.columns if col[-1] == 'Y']
-    
+
     ## here converting the units
     df[x_cols] = (df[x_cols] - 0.5) * field_dims[0]
     df[y_cols] = -1 * (df[y_cols] - 0.5) * field_dims[1]
-    
+
     return df
     
 def read_tracking_data(data_dir, game_id, team_name):
@@ -72,34 +70,32 @@ def read_tracking_data(data_dir, game_id, team_name):
     the event data
     '''
     ## setting the path of our file
-    file_name = 'Sample_Game_{}_RawTrackingData_{}_Team.csv'.format(game_id, team_name)
+    file_name = f'Sample_Game_{game_id}_RawTrackingData_{team_name}_Team.csv'
     file_loc = data_dir + '/Sample_Game_' + str(game_id) + '/' + file_name 
-    
+
     ## creating a csv file reader
-    csv_file = open(file_loc, 'r') 
+    csv_file = open(file_loc, 'r')
     reader = csv.reader(csv_file)
-    
+
     ## 3rd element in the first line will tell whether the 
     ## team is Home team or Away Team
     teamname = next(reader)[3]
-    print('Reading content for {} team'.format(teamname))
-    
+    print(f'Reading content for {teamname} team')
+
     ## jersey name of each player
     jerseys = [j_name for j_name in next(reader) if j_name != '']
     columns = next(reader)
-    
+
     ## formatting the names in the columns list
     for i, j in enumerate(jerseys):
-        columns[i * 2 + 3] = '{}_{}_X'.format(team_name, j)
-        columns[i * 2 + 4] = '{}_{}_Y'.format(team_name, j)
-    
+        columns[i * 2 + 3] = f'{team_name}_{j}_X'
+        columns[i * 2 + 4] = f'{team_name}_{j}_Y'
+
     ## formatting the last two values in columns
     columns[-2] = 'ball_X'
     columns[-1] = 'ball_Y'
-    
-    track_frame = pd.read_csv(file_loc, names=columns, index_col='Frame', skiprows=3)
-    
-    return track_frame
+
+    return pd.read_csv(file_loc, names=columns, index_col='Frame', skiprows=3)
     
 def rev_direction(event_data, tracking_home, tracking_away):
     '''

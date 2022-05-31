@@ -39,9 +39,11 @@ class ComplexRadar():
         '''
         angles = np.arange(0, 360, 360./len(variables))
 
-        axes = [fig.add_axes([0.1,0.1,0.9,0.9], polar=True,
-            label = "axes{}".format(i)) 
-            for i in range(len(variables))]
+        axes = [
+            fig.add_axes([0.1, 0.1, 0.9, 0.9], polar=True, label=f"axes{i}")
+            for i in range(len(variables))
+        ]
+
 
         l, text = axes[0].set_thetagrids(angles, labels=variables)
 
@@ -56,13 +58,13 @@ class ComplexRadar():
 
         for i, ax in enumerate(axes):
             grid = np.linspace(*ranges[i], num=n_ordinate_levels)
-            gridlabel = ["{}".format(round(x,2)) for x in grid]
+            gridlabel = [f"{round(x, 2)}" for x in grid]
 
             gridlabel[0] = "" # clean up origin
             ax.set_rgrids(grid, labels=gridlabel,angle=angles[i])
 
             ax.set_ylim(*ranges[i])
-        
+
         # variables for plotting
         self.angle = np.deg2rad(np.r_[angles, angles[0]])
         self.ranges = ranges
