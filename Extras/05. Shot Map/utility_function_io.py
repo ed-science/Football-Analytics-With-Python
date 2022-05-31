@@ -26,9 +26,7 @@ def get_competitions():
     comp_df -- dataframe for competition data.
     '''
     comp_data = json.load(open('../Statsbomb/data/competitions.json'))
-    comp_df = pd.DataFrame(comp_data)
-    
-    return comp_df
+    return pd.DataFrame(comp_data)
 
 def flatten_json(sub_str):
     '''
@@ -50,10 +48,8 @@ def flatten_json(sub_str):
             for a in x:
                 flatten(x[a], name + a + '_')
         elif type(x) is list:
-            i = 0
-            for a in x:
+            for i, a in enumerate(x):
                 flatten(a, name + str(i) + '_')
-                i += 1
         else:
             out[name[:-1]] = x
 
@@ -147,15 +143,12 @@ def make_event_df(match_id):
     event_df -- dataframe object, the event dataframe for the particular match.
     '''
     ## setting path for the required file
-    path = '../Statsbomb/data/events/{}.json'.format(match_id)
-    
+    path = f'../Statsbomb/data/events/{match_id}.json'
+
     ## reading in the json file
     event_json = json.load(open(path, encoding='utf-8'))
-    
-    ## normalize the json data
-    df = json_normalize(event_json, sep='_')
-    
-    return df
+
+    return json_normalize(event_json, sep='_')
       
 def full_season_events(match_ids, team_name):
     '''
@@ -195,13 +188,12 @@ def get_through_balls_id(event_df):
     thorugh_ids -- dict, containing the ids for the thorugh ball pass.
                          key will be the id value will be True.
     '''
-    through_ids = dict()
-    
-    for index, row in event_df.iterrows():
-        if (row['pass_goal_assist'] == True) & (row['pass_through_ball'] == True):
-            through_ids[ row['id'] ] = True
-        
-    return through_ids
+    return {
+        row['id']: True
+        for index, row in event_df.iterrows()
+        if (row['pass_goal_assist'] == True)
+        & (row['pass_through_ball'] == True)
+    }
 
 
 

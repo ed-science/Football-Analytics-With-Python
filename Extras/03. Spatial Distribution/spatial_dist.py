@@ -57,7 +57,7 @@ for key, value in event_dict.items():
 
 ## making NMF model
 model_dict = {}
-    
+
 for key, value in cumulative_dict.items():
     model = ufio.non_neg_matrix_factorization(value)
     model_dict[key] = model

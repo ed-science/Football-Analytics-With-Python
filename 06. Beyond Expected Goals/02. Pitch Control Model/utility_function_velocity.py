@@ -54,7 +54,10 @@ class Player:
         self -- represents the object of the class.
         team -- tracking frame
         '''
-        self.position = np.array([team[self.player_name + 'x'], team[self.player_name + 'y']])
+        self.position = np.array(
+            [team[f'{self.player_name}x'], team[f'{self.player_name}y']]
+        )
+
         self.inframe = not np.any(np.isnan(self.position))
     
     def get_velocity(self, team):
@@ -66,7 +69,10 @@ class Player:
         self -- represents the object of the class.
         team -- tracking frame.
         '''
-        self.velocity = np.array([team[self.player_name + 'vx'], team[self.player_name + 'vy']])
+        self.velocity = np.array(
+            [team[f'{self.player_name}vx'], team[f'{self.player_name}vy']]
+        )
+
         if np.any(np.isnan(self.velocity)):
             self.velocity = np.array([0.0, 0.0])
         
@@ -84,10 +90,10 @@ class Player:
         self.PPCF = 0.0
         ## Time to intercept assumes that the player continues moving at current velocity for 'reaction_time'
         ## and then runs at full speed to the target position.
-        
+
         reaction = self.position + self.velocity * self.reaction_time
         self.time_to_intercept = self.reaction_time + np.linalg.norm(final_pos - reaction) / self.v_max
-        
+
         return self.time_to_intercept
     
     def probability_intercept_ball(self, arr_time):
@@ -98,9 +104,15 @@ class Player:
         self -- represents the object of the class.
         arr_time -- time taken by the player to arrive at the target location of the ball.
         '''
-        probab = 1 / (1 + np.exp(-np.pi / np.sqrt(3.0) / self.sigma * (arr_time - self.time_to_intercept)))
-        
-        return probab
+        return 1 / (
+            1
+            + np.exp(
+                -np.pi
+                / np.sqrt(3.0)
+                / self.sigma
+                * (arr_time - self.time_to_intercept)
+            )
+        )
         
 
 def default_model_params(time_to_control = 3):
@@ -118,53 +130,39 @@ def default_model_params(time_to_control = 3):
     Returns:
     params: dict, parameters required to build the model.
     '''
-    params = {}
-    ## dictionary will contain all the required parameters
-    
-    ## model parameters
-    
-    params['max_player_acc'] = 7.0 
-    ## maximum player acceleration = 7.0 m/s^2
-    
-    params['max_player_speed'] = 5.0 
-    ## maximum player speed = 5.0 m/s
-    
-    params['reaction_time'] = 0.7
-    ## time take by the player to react and change trajectory = 0.7 second
-    
-    params['sigma'] = 0.45
-    ## standard deviation of sigmoid function in Spearman's model
-    ## determines uncertainity in player's arrival time
-    
-    params['kappa_def'] = 1.72
-    ## kappa parameter defined in Spearman's model
-    ## gives advantage to defending players to control the ball
-    
-    params['lambda_att'] = 4.3
+    params = {
+        'max_player_acc': 7.0,
+        'max_player_speed': 5.0,
+        'reaction_time': 0.7,
+        'sigma': 0.45,
+        'kappa_def': 1.72,
+        'lambda_att': 4.3,
+    }
+
     ## ball control parameter for attacking team
-    
+
     params['lambda_def'] = 4.3 * params['kappa_def']
     ## ball control parameter for defending team
-    
+
     params['avg_ball_speed'] = 15
     ## average ball speed = 15 m/s
-    
+
     params['int_dt'] = 0.04
     ## integration timestep(dt)
-    
+
     params['max_int_time'] = 10
     ## upper limit on integral time
-    
+
     params['model_converge_tol'] = 0.01
     ## assume convergence when PPCF>0.99 at a given location.
     ## The following are 'short-cut' parameters. We do not need to calculated PPCF 
     ## explicitly when a player has a sufficient head start. 
     ## A sufficient head start is when the a player arrives at the target location 
     ## at least 'time_to_control' seconds before the next player
-    
+
     params['time_to_control_att'] = time_to_control * np.log(10) * (np.sqrt(3) * params['sigma'] / np.pi + 1/params['lambda_att'])
     params['time_to_control_def'] = time_to_control * np.log(10) * (np.sqrt(3) * params['sigma'] / np.pi + 1/params['lambda_def'])
-    
+
     return params
    
 def initialize_players(team, team_name, params):
@@ -209,25 +207,25 @@ def generate_pitch_control_for_events(event_id, event_data, tracking_home, track
     '''
     field_dims = (105, 68)
     ## field dimension for our pitch map
-    
+
     n_grid_cell_x = 50
     ## number of pixels in the grid(in x-direction) 
     ## n_grid_cell_y will be calculated based on n_grid_cell_x and field dimensions
-    
+
     ## getting the starting frame, team in possession, ball's starting position
     pass_frame = event_data.loc[event_id, 'Start Frame']
     pass_team = event_data.loc[event_id, 'Team']
     ball_start_pos = np.array([event_data.loc[event_id, 'Start X'], event_data.loc[event_id, 'Start Y']])
-    
+
     ## breaking the pitch down into grids
     n_grid_cell_y = int(n_grid_cell_x * field_dims[1]) / field_dims[0]
     x_grid = np.linspace(-field_dims[0] / 2, field_dims[0] / 2, n_grid_cell_x)
     y_grid = np.linspace(-field_dims[1] / 2, field_dims[1] / 2, n_grid_cell_y)
-    
+
     ## initializing pitch control grids for attacking and defending teams
     PPCF_a = np.zeros(shape=(len(y_grid), len(x_grid)))
     PPCF_d = np.zeros(shape=(len(y_grid), len(x_grid)))
-    
+
     ## initializing player positions and velocities for pitch control calculations
     if pass_team == 'Home':
         attacking_players = initialize_players(tracking_home.loc[pass_frame], 'Home', params)

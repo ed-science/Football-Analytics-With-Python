@@ -16,6 +16,7 @@ Modules Used(4):
 3. pandas -- module to work with dataframes.
 4. FCPython -- module to create football pitch map
 """
+
 import matplotlib.pyplot as plt
 import json
 from pandas.io.json import json_normalize
@@ -38,12 +39,12 @@ player_name = 'Lionel Andrés Messi Cuccittini'
 
 ## this is the name of our event data file for
 ## our required El Clasico
-file_name = str(match_id) + '.json'
+file_name = f'{match_id}.json'
 
-## loading the required event data file
-##with open('../Statsbomb/data/events/' + file_name) as event_data:
-    ##my_data = json.load(event_data, encoding='utf-8')    
-my_data = json.load(open('../Statsbomb/data/events/' + file_name, 'r', encoding='utf-8'))
+my_data = json.load(
+    open(f'../Statsbomb/data/events/{file_name}', 'r', encoding='utf-8')
+)
+
 ## get the nested structure into a dataframe 
 ## store the dataframe in a dictionary with the match id as key
 df = json_normalize(my_data, sep='_').assign(match_id = file_name[:-5])
@@ -63,24 +64,24 @@ dribble_df = dribble_df.loc[dribble_df['player_name'] == player_name, :]
 for row_num, dribble in dribble_df.iterrows():
     x_loc = dribble['location'][0]
     y_loc = dribble['location'][1]
-        
+
     if dribble['player_name'] == player_name:
         touch_circle = plt.Circle((pitch_length_X - x_loc, y_loc), radius=1.5, color='blue')
-            
+
         if dribble['dribble_outcome_name'] == 'Incomplete':
             ## if incomplete dribble then fade out the circle
             touch_circle.set_alpha(0.3)
-        
+
         ax.add_patch(touch_circle)
 
 ## placing text on the plot
-plt.text(10, 82, '{}\'s Dribbls vs Real Madrid'.format(player_name), fontsize=12)
+plt.text(10, 82, f"{player_name}'s Dribbls vs Real Madrid", fontsize=12)
 plt.text(80, 85, 'Darker Circles: Successful Dribbles', fontsize=12)
 plt.text(80, 82, 'Faded Circles: Unsuccessful Dribbles', fontsize=12)
 
 ## setting figure and saving it
 fig.set_size_inches(12, 8)
-fig.savefig('{}\'s Dribbles vs Real Madrid'.format(player_name))
+fig.savefig(f"{player_name}'s Dribbles vs Real Madrid")
 
 ## displaying the plot
 plt.show()

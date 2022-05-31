@@ -20,6 +20,7 @@ Modules Used(1):
 ---------------
 1. json -- module to work with JSON data.
 """
+
 import json        ## importing json module
 
 ## loading the competitions.json file 
@@ -33,7 +34,7 @@ comp = 11
 season_id = 41
 
 ## load all the matches from this competition
-with open('../Statsbomb/data/matches/' + str(comp) + '/' + str(season_id) + '.json') as match_file:
+with open(f'../Statsbomb/data/matches/{comp}/{season_id}.json') as match_file:
     match_data = json.load(match_file)
 
 ## now finding home team and away team
@@ -49,7 +50,7 @@ score = None
 for match in match_data:
     home_team_value = (match['home_team']['home_team_name'] == home_team)
     away_team_value = (match['away_team']['away_team_name'] == away_team)
-    
+
     if home_team_value and away_team_value:
         match_id = match['match_id']
         score = str(match['home_score']) + ' : ' + str(match['away_score'])
@@ -57,17 +58,17 @@ for match in match_data:
 ## checking if the match is found or not
 ## if found then displaying the right result
 if match_id != None:
-    print('{} vs {} has match id: {}'.format(home_team, away_team, match_id))
-    print('Score: {}'.format(score))
+    print(f'{home_team} vs {away_team} has match id: {match_id}')
+    print(f'Score: {score}')
 else:
     print('No match found')
 
 ## let's try to find all the results for Barcelona for
 ## La Liga season 2008-09
 for match in match_data:
-    home_team_value = match['home_team']['home_team_name'] 
+    home_team_value = match['home_team']['home_team_name']
     away_team_value = match['away_team']['away_team_name'] 
-    
+
     if home_team_value == 'Barcelona' or away_team_value == 'Barcelona':
         score = str(match['home_score']) + ' : ' + str(match['away_score'])
-        print('{} vs {}, score: {}'.format(home_team_value, away_team_value, score))
+        print(f'{home_team_value} vs {away_team_value}, score: {score}')
